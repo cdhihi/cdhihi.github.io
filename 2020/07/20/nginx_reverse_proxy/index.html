@@ -20,21 +20,21 @@
     var CONFIG = {"hostname":"cdhihi.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="加到nginx.conf配置文件  12345678if ($request_method &#x3D; OPTIONS ) &amp;#123;               add_header &#39;Access-Control-Allow-Origin&#39; &#39;*&#39;;               add_header &#39;Access-Control-Allow-He">
+  <meta name="description" content="1.找到nginx配置文件nginx.conf,location里面添加  123456789server &amp;#123;  .....        location &#x2F; &amp;#123;		    proxy_pass http:&#x2F;&#x2F;127.0.0.1：8081&#x2F;;            index index.php index.html;">
 <meta property="og:type" content="article">
-<meta property="og:title" content="nginx解决跨域问题">
-<meta property="og:url" content="https://cdhihi.github.io/2018/11/12/nginx_cross_domain/index.html">
+<meta property="og:title" content="nginx反向代理">
+<meta property="og:url" content="https://cdhihi.github.io/2020/07/20/nginx_reverse_proxy/index.html">
 <meta property="og:site_name" content="技术笔记">
-<meta property="og:description" content="加到nginx.conf配置文件  12345678if ($request_method &#x3D; OPTIONS ) &amp;#123;               add_header &#39;Access-Control-Allow-Origin&#39; &#39;*&#39;;               add_header &#39;Access-Control-Allow-He">
+<meta property="og:description" content="1.找到nginx配置文件nginx.conf,location里面添加  123456789server &amp;#123;  .....        location &#x2F; &amp;#123;		    proxy_pass http:&#x2F;&#x2F;127.0.0.1：8081&#x2F;;            index index.php index.html;">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2018-11-12T03:23:55.000Z">
-<meta property="article:modified_time" content="2020-07-06T09:10:29.774Z">
+<meta property="article:published_time" content="2020-07-20T03:23:55.000Z">
+<meta property="article:modified_time" content="2020-07-20T09:54:19.162Z">
 <meta property="article:author" content="cdhihi">
 <meta property="article:tag" content="nginx">
-<meta property="article:tag" content="web">
+<meta property="article:tag" content="server">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://cdhihi.github.io/2018/11/12/nginx_cross_domain/">
+<link rel="canonical" href="https://cdhihi.github.io/2020/07/20/nginx_reverse_proxy/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>nginx解决跨域问题 | 技术笔记</title>
+  <title>nginx反向代理 | 技术笔记</title>
   
 
 
@@ -162,7 +162,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://cdhihi.github.io/2018/11/12/nginx_cross_domain/">
+    <link itemprop="mainEntityOfPage" href="https://cdhihi.github.io/2020/07/20/nginx_reverse_proxy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -175,7 +175,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          nginx解决跨域问题
+          nginx反向代理
         </h1>
 
         <div class="post-meta">
@@ -184,16 +184,10 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2018-11-12 11:23:55" itemprop="dateCreated datePublished" datetime="2018-11-12T11:23:55+08:00">2018-11-12</time>
+              <time title="创建时间：2020-07-20 11:23:55 / 修改时间：17:54:19" itemprop="dateCreated datePublished" datetime="2020-07-20T11:23:55+08:00">2020-07-20</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-06 17:10:29" itemprop="dateModified" datetime="2020-07-06T17:10:29+08:00">2020-07-06</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -216,10 +210,12 @@
 
       
         <blockquote>
-<p>加到nginx.conf配置文件</p>
+<p>1.找到nginx配置文件nginx.conf,location里面添加</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if ($request_method &#x3D; OPTIONS ) &#123;</span><br><span class="line">               add_header &#39;Access-Control-Allow-Origin&#39; &#39;*&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Allow-Headers&#39; &#39;Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,X-Requested-With,x-auth-token&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Allow-Methods&#39; &#39;GET,POST,OPTIONS&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Expose-Headers&#39; &#39;x-auth-token&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Max-Age&#39; &quot;86400&quot;;</span><br><span class="line">               return 200;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  .....</span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">		    proxy_pass http:&#x2F;&#x2F;127.0.0.1：8081&#x2F;;</span><br><span class="line">            index index.php index.html;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">  ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>proxy_pass 后面是你服务器的ip，需要反向代理的ip地址</p>
+</blockquote>
 
     </div>
 
@@ -230,7 +226,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/nginx/" rel="tag"># nginx</a>
-              <a href="/tags/web/" rel="tag"># web</a>
+              <a href="/tags/server/" rel="tag"># server</a>
           </div>
 
         
@@ -238,11 +234,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/03/23/php_specification/" rel="next" title="如何写PHP规范注释">
-      如何写PHP规范注释 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/07/12/nginx_load_balancing/" rel="prev" title="nginx负载均衡配置">
+      <i class="fa fa-chevron-left"></i> nginx负载均衡配置
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
