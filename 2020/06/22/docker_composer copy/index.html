@@ -20,15 +20,20 @@
     var CONFIG = {"hostname":"www.cdhihi.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="技术笔记">
-<meta property="og:url" content="https://www.cdhihi.com/archives/2018/11/index.html">
+  <meta name="description" content="docker-conposer的简介 Docker-Compose项目是Docker官方的开源项目，负责实现对Docker容器集群的快速编排。  当对这个不了解一直以为跟dockerfile是一个东西，然后了解过之后跟他完全没关系，他就是一个快速排版的一个工具，然后就是有点像sehll，写的都是docker run里面的命令，下面就简单的用一下mysql为例   123456789101112ve">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker-composer的使用与介绍">
+<meta property="og:url" content="https://www.cdhihi.com/2020/06/22/docker_composer%20copy/index.html">
 <meta property="og:site_name" content="技术笔记">
+<meta property="og:description" content="docker-conposer的简介 Docker-Compose项目是Docker官方的开源项目，负责实现对Docker容器集群的快速编排。  当对这个不了解一直以为跟dockerfile是一个东西，然后了解过之后跟他完全没关系，他就是一个快速排版的一个工具，然后就是有点像sehll，写的都是docker run里面的命令，下面就简单的用一下mysql为例   123456789101112ve">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-22T04:22:55.000Z">
+<meta property="article:modified_time" content="2020-07-25T11:18:20.358Z">
 <meta property="article:author" content="cdhihi">
+<meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://www.cdhihi.com/archives/2018/11/">
+<link rel="canonical" href="https://www.cdhihi.com/2020/06/22/docker_composer%20copy/">
 
 
 <script id="page-configurations">
@@ -36,12 +41,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | 技术笔记</title>
+  <title>docker-composer的使用与介绍 | 技术笔记</title>
   
 
 
@@ -149,50 +154,117 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 8 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2020/06/22/docker_composer%20copy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cdhihi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术笔记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          docker-composer的使用与介绍
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-22 12:22:55" itemprop="dateCreated datePublished" datetime="2020-06-22T12:22:55+08:00">2020-06-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-25 19:18:20" itemprop="dateModified" datetime="2020-07-25T19:18:20+08:00">2020-07-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/docker/" itemprop="url" rel="index"><span itemprop="name">docker</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2018</span>
+        <h2 id="docker-conposer的简介"><a href="#docker-conposer的简介" class="headerlink" title="docker-conposer的简介"></a>docker-conposer的简介</h2><ul>
+<li><p>Docker-Compose项目是Docker官方的开源项目，负责实现对Docker容器集群的快速编排。</p>
+</li>
+<li><p>当对这个不了解一直以为跟dockerfile是一个东西，然后了解过之后跟他完全没关系，他就是一个快速排版的一个工具，然后就是有点像sehll，写的都是docker run里面的命令，下面就简单的用一下mysql为例</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">version : &#39;3.4&#39;</span><br><span class="line">  service :</span><br><span class="line">    mysql : </span><br><span class="line">      image : mysql</span><br><span class="line">      container_name: mysql</span><br><span class="line">      environment:</span><br><span class="line">        - MYSQL_ROOT_PASSWORD&#x3D;123456</span><br><span class="line">      ports:</span><br><span class="line">        - &quot;13007:3306&quot;</span><br><span class="line">      volumes:</span><br><span class="line">        - .&#x2F;runtime&#x2F;data&#x2F;mysql:&#x2F;var&#x2F;lib&#x2F;mysql</span><br><span class="line">      restart: always</span><br></pre></td></tr></table></figure>
+<ul>
+<li>version 这个是固定的版本号写死</li>
+<li>mysql 这个就是容器名称，</li>
+<li>image 镜像名称（首先是先查看你本地有么有镜像，如果本地没有镜像就会去docker 上面去拉取镜像）</li>
+<li>container_name 自己定义的</li>
+<li>environment 环境变量，这里设置的是mysql默认的root密码</li>
+<li>ports 端口映射</li>
+<li>volumes 硬盘映射，把本地的文件映射到容器中</li>
+<li>restart always是指当docker重启的时候启动这个实例</li>
+</ul>
+<blockquote>
+<p>这些就简单的使用案例</p>
+</blockquote>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2018-11-12T11:23:55+08:00"
-              content="2018-11-12">
-          11-12
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/docker/" rel="tag"># docker</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2018/11/12/nginx_cross_domain/" itemprop="url">
-            <span itemprop="name">nginx解决跨域问题</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/24/php_bubbling_algorithm/" rel="prev" title="php冒泡排序">
+      <i class="fa fa-chevron-left"></i> php冒泡排序
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/22/docker/" rel="next" title="docker">
+      docker <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
   </article>
-
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -245,6 +317,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#docker-conposer的简介"><span class="nav-number">1.</span> <span class="nav-text">docker-conposer的简介</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

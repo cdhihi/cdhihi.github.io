@@ -480,6 +480,210 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2020/06/22/docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cdhihi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/22/docker/" class="post-title-link" itemprop="url">docker</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-22 12:22:55" itemprop="dateCreated datePublished" datetime="2020-06-22T12:22:55+08:00">2020-06-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-25 16:59:00" itemprop="dateModified" datetime="2020-07-25T16:59:00+08:00">2020-07-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/docker/" itemprop="url" rel="index"><span itemprop="name">docker</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="docker的流程-用mysql为例"><a href="#docker的流程-用mysql为例" class="headerlink" title="docker的流程 用mysql为例"></a>docker的流程 用mysql为例</h2><blockquote>
+<p> 先是dockerfile（或者docker pull）生成镜像-&gt;然后run生成容器下面介绍步骤</p>
+</blockquote>
+<ul>
+<li>使用dockerfie生成镜像</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">FROM php:7.1</span><br><span class="line">#b把当前目录下的swoft文件拷贝到到容器的html目录里面</span><br><span class="line">ADD .&#x2F;cdhihi &#x2F;var&#x2F;www&#x2F;html</span><br><span class="line">#设置工作目录当进入容器的目录</span><br><span class="line">WORKDIR &#x2F;var&#x2F;www&#x2F;html</span><br><span class="line">#映射端口</span><br><span class="line">EXPOSE 9000</span><br></pre></td></tr></table></figure>
+<ul>
+<li>打包build命令</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build . -t php:7.1</span><br></pre></td></tr></table></figure>
+<ul>
+<li>这里的t是给镜像分配一个名字</li>
+</ul>
+<ul>
+<li>镜像生成容器</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -p 9000:9000 -v &#x2F;var&#x2F;www:&#x2F;var&#x2F;www&#x2F;html php:7.1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>解释一下 运行命令</p>
+</li>
+<li><p>-d: 后台运行容器，并返回容器ID；</p>
+</li>
+<li><p>-i: 以交互模式运行容器，通常与 -t 同时使用；</p>
+</li>
+<li><p>-P: 随机端口映射，容器内部端口随机映射到主机的端口</p>
+</li>
+<li><p>-p: 指定端口映射，格式为：主机(宿主)端口:容器端口</p>
+</li>
+<li><p>-t: 为容器重新分配一个伪输入终端，通常与 -i 同时使用；</p>
+</li>
+<li><p>-v: 绑定一个卷,这个卷的意思就是硬盘映射把宿主机的文件映射到docker文件中</p>
+</li>
+</ul>
+<blockquote>
+<p>基础的操作命令就这些</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2020/06/22/docker_composer%20copy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cdhihi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/22/docker_composer%20copy/" class="post-title-link" itemprop="url">docker-composer的使用与介绍</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-22 12:22:55" itemprop="dateCreated datePublished" datetime="2020-06-22T12:22:55+08:00">2020-06-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-25 19:18:20" itemprop="dateModified" datetime="2020-07-25T19:18:20+08:00">2020-07-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/docker/" itemprop="url" rel="index"><span itemprop="name">docker</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="docker-conposer的简介"><a href="#docker-conposer的简介" class="headerlink" title="docker-conposer的简介"></a>docker-conposer的简介</h2><ul>
+<li><p>Docker-Compose项目是Docker官方的开源项目，负责实现对Docker容器集群的快速编排。</p>
+</li>
+<li><p>当对这个不了解一直以为跟dockerfile是一个东西，然后了解过之后跟他完全没关系，他就是一个快速排版的一个工具，然后就是有点像sehll，写的都是docker run里面的命令，下面就简单的用一下mysql为例</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">version : &#39;3.4&#39;</span><br><span class="line">  service :</span><br><span class="line">    mysql : </span><br><span class="line">      image : mysql</span><br><span class="line">      container_name: mysql</span><br><span class="line">      environment:</span><br><span class="line">        - MYSQL_ROOT_PASSWORD&#x3D;123456</span><br><span class="line">      ports:</span><br><span class="line">        - &quot;13007:3306&quot;</span><br><span class="line">      volumes:</span><br><span class="line">        - .&#x2F;runtime&#x2F;data&#x2F;mysql:&#x2F;var&#x2F;lib&#x2F;mysql</span><br><span class="line">      restart: always</span><br></pre></td></tr></table></figure>
+<ul>
+<li>version 这个是固定的版本号写死</li>
+<li>mysql 这个就是容器名称，</li>
+<li>image 镜像名称（首先是先查看你本地有么有镜像，如果本地没有镜像就会去docker 上面去拉取镜像）</li>
+<li>container_name 自己定义的</li>
+<li>environment 环境变量，这里设置的是mysql默认的root密码</li>
+<li>ports 端口映射</li>
+<li>volumes 硬盘映射，把本地的文件映射到容器中</li>
+<li>restart always是指当docker重启的时候启动这个实例</li>
+</ul>
+<blockquote>
+<p>这些就简单的使用案例</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2020/03/24/php_bubbling_algorithm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -786,20 +990,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
