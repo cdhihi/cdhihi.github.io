@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.1">
+<meta name="generator" content="Hexo 5.2.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -151,6 +151,309 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2020/11/09/swoole_tcp_nianbao/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cdhihi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/09/swoole_tcp_nianbao/" class="post-title-link" itemprop="url">swoole 粘包问题</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-11-09 00:26:27 / 修改时间：00:53:06" itemprop="dateCreated datePublished" datetime="2020-11-09T00:26:27+08:00">2020-11-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/" itemprop="url" rel="index"><span itemprop="name">php</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/swoole/" itemprop="url" rel="index"><span itemprop="name">swoole</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p> 先来讲解，为什么会产生粘包问题呢，网上炒了一段，如果想要仔细了解的同学可以去搜寻一下对应的资料</p>
+</blockquote>
+<ul>
+<li>当应用层协议使用 TCP 协议传输数据时，TCP 协议可能会将应用层发送的数据分成多个包依次发送，而数据的接收方收到的数据段可能有多个『应用层数据包』组成，所以当应用层从 TCP 缓冲区中读取数据时发现粘连的数据包时，需要对收到的数据进行拆分。</li>
+</ul>
+<blockquote>
+<p>1.话不多说上代码，服务端代码</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;创建Server对象，监听 127.0.0.1:9501 端口</span><br><span class="line">$server &#x3D; new Swoole\Server(&#39;127.0.0.1&#39;, 9501);</span><br><span class="line">$server-&gt;set([</span><br><span class="line">    &#39;open_length_check&#39;     &#x3D;&gt; true,&#x2F;&#x2F;打开包检测</span><br><span class="line">    &#39;package_max_length&#39;    &#x3D;&gt; 1 * 1024 * 1024, &#x2F;&#x2F;1兆</span><br><span class="line">    &#39;package_length_type&#39;   &#x3D;&gt; &#39;n&#39;, &#x2F;&#x2F;小n 2个字节，大N 4个字节</span><br><span class="line">    &#39;package_length_offset&#39; &#x3D;&gt; 0,&#x2F;&#x2F;包头从第几位开始截取</span><br><span class="line">    &#39;package_body_offset&#39;   &#x3D;&gt; 2,&#x2F;&#x2F;包头到几位结束</span><br><span class="line">]);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听连接进入事件</span><br><span class="line">$server-&gt;on(&#39;Connect&#39;, function ($server, $fd) &#123;</span><br><span class="line">    echo &quot;Client: Connect.\n&quot;;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听数据接收事件</span><br><span class="line">$server-&gt;on(&#39;Receive&#39;, function ($server, $fd, $from_id, $data) &#123;</span><br><span class="line">    echo &#39;接收到数据：&#39;.$data.PHP_EOL;</span><br><span class="line">    $server-&gt;send($fd, &quot;Server: &quot; . $data);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听连接关闭事件</span><br><span class="line">$server-&gt;on(&#39;Close&#39;, function ($server, $fd) &#123;</span><br><span class="line">    echo &quot;Client: Close.\n&quot;;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;启动服务器</span><br><span class="line">$server-&gt;start(); </span><br></pre></td></tr></table></figure>
+
+
+<blockquote>
+<p>2.客户端代码</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">$client &#x3D; new Swoole\Client(SWOOLE_SOCK_TCP );</span><br><span class="line"></span><br><span class="line">if (!$client-&gt;connect(&#39;127.0.0.1&#39;, 9501, -1)) &#123;</span><br><span class="line">    exit(&quot;connect failed. Error: &#123;$client-&gt;errCode&#125;\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;粘包</span><br><span class="line">for($i&#x3D;0; $i&lt;10; $i++)&#123;</span><br><span class="line">    $str &#x3D; &#39;hello&#39;;&#x2F;&#x2F;要发送的内容</span><br><span class="line">    $len &#x3D; pack(&#39;n&#39;,strlen($str));&#x2F;&#x2F;把长度转换二进制，n表示2个字节长度</span><br><span class="line">    $send &#x3D; $len.$str;&#x2F;&#x2F;拼接</span><br><span class="line">    var_dump($send);</span><br><span class="line">    $client-&gt;send($send);&#x2F;&#x2F;发送</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$client-&gt;recv();</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>3.执行效果(服务端)</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost 03]# php xintiao_tcp_server.php </span><br><span class="line">Client: Connect.</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">接收到数据：hello</span><br><span class="line">Client: Close.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<blockquote>
+<p>3.执行效果(客户端)</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost 03]# php xintiao_tcp_client.php </span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line">string(7) &quot;hello&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2020/11/08/swoole_tcp_timer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cdhihi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/08/swoole_tcp_timer/" class="post-title-link" itemprop="url">swoole 心跳检测</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-11-08 23:14:41" itemprop="dateCreated datePublished" datetime="2020-11-08T23:14:41+08:00">2020-11-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-09 00:53:11" itemprop="dateModified" datetime="2020-11-09T00:53:11+08:00">2020-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/" itemprop="url" rel="index"><span itemprop="name">php</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/swoole/" itemprop="url" rel="index"><span itemprop="name">swoole</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>服务端设计心跳包的目的,网上炒了一段，如果想要仔细了解的同学可以去搜寻一下对应的资料</p>
+</blockquote>
+<ul>
+<li>探知对端应用是否存活，服务端客户端都可以发心跳包，一般都是客户端发送心跳包，服务端用于判断客户端是否在线，从而对服务端内存缓存数据进行清理（玩家下线等）；问题在于，通过TCP四次握手断开的设定，我们也是可以通过Socket的read方法来判断TCP连接是否断开，从而做出相应的清理内存动作</li>
+</ul>
+<blockquote>
+<p>1.话不多说上代码，服务端代码</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;创建Server对象，监听 127.0.0.1:9501 端口</span><br><span class="line">$server &#x3D; new Swoole\Server(&#39;127.0.0.1&#39;, 9501);</span><br><span class="line"></span><br><span class="line">$server-&gt;set([</span><br><span class="line">    &#39;heartbeat_idle_time&#39;      &#x3D;&gt; 3, &#x2F;&#x2F; 表示一个连接如果3秒内未向服务器发送任何数据，此连接将被强制关闭</span><br><span class="line">    &#39;heartbeat_check_interval&#39; &#x3D;&gt; 2,  &#x2F;&#x2F; 表示每2秒遍历一次</span><br><span class="line">]);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听连接进入事件</span><br><span class="line">$server-&gt;on(&#39;Connect&#39;, function ($server, $fd) &#123;</span><br><span class="line">    echo &quot;Client: Connect.\n&quot;;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听数据接收事件</span><br><span class="line">$server-&gt;on(&#39;Receive&#39;, function ($server, $fd, $from_id, $data) &#123;</span><br><span class="line">    $server-&gt;send($fd, &quot;Server: &quot; . $data);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听连接关闭事件</span><br><span class="line">$server-&gt;on(&#39;Close&#39;, function ($server, $fd) &#123;</span><br><span class="line">    echo &quot;Client: Close.\n&quot;;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;启动服务器</span><br><span class="line">$server-&gt;start(); </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<blockquote>
+<p>2.客户端代码</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;new对象</span><br><span class="line">$client &#x3D; new Swoole\Client(SWOOLE_SOCK_TCP );</span><br><span class="line">&#x2F;&#x2F;建立tcp连接</span><br><span class="line">if (!$client-&gt;connect(&#39;127.0.0.1&#39;, 9501, -1)) &#123;</span><br><span class="line">    exit(&quot;connect failed. Error: &#123;$client-&gt;errCode&#125;\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;定时器每4千毫秒执行一次</span><br><span class="line">swoole_timer_tick(4000, function ($timer_id) use ($client) &#123;</span><br><span class="line">   echo &quot;string\n&quot;;</span><br><span class="line">   &#x2F;&#x2F;发送消息</span><br><span class="line">   $client-&gt;send(1);</span><br><span class="line">   &#x2F;&#x2F;接收消息</span><br><span class="line">   $client-&gt;recv();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注意使用sleep()函数会影响定时器的执行，因为sleep函数会阻碍整个php程序的进程</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2020/11/08/swoole-websocket-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cdhihi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/08/swoole-websocket-server/" class="post-title-link" itemprop="url">用swoole中的websockt 搭建一个简单的聊天</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-11-08 17:39:01" itemprop="dateCreated datePublished" datetime="2020-11-08T17:39:01+08:00">2020-11-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-09 00:53:15" itemprop="dateModified" datetime="2020-11-09T00:53:15+08:00">2020-11-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/" itemprop="url" rel="index"><span itemprop="name">php</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/php/swoole/" itemprop="url" rel="index"><span itemprop="name">swoole</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>最近在学swoole 的websocket,来做一个小案例聊天软件</li>
+</ul>
+<blockquote>
+<p>1.先来搭建一个服务端</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;创建WebSocket Server对象，监听0.0.0.0:9502端口，这个ip得注意一下，很多新手不懂这个0.0.0.0，跟你直接绑定127.0.0.1，的区别，如果你直接写127.0.0.1的话，你用内网ip访问本机地址是访问不到的，0.0.0.0，是不限制ip，127.0.0.1，是限制只能用127.0.0.1来访问注意这一点</span><br><span class="line">$ws &#x3D; new Swoole\WebSocket\Server(&#39;0.0.0.0&#39;, 9502);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听WebSocket连接打开事件</span><br><span class="line">$ws-&gt;on(&#39;open&#39;, function ($ws, $request) &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F;把自己的id返回回去</span><br><span class="line">    $redata &#x3D; [</span><br><span class="line">        &#39;fd&#39;&#x3D;&gt;$request-&gt;fd</span><br><span class="line">    ];</span><br><span class="line"></span><br><span class="line">    $ws-&gt;push($request-&gt;fd,json_encode($redata));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听WebSocket消息事件</span><br><span class="line">$ws-&gt;on(&#39;message&#39;, function ($ws, $frame) &#123;</span><br><span class="line">    &#x2F;&#x2F;解析json</span><br><span class="line">    $data &#x3D; json_decode($frame-&gt;data,true);</span><br><span class="line">    &#x2F;&#x2F;拼接要发送的数据</span><br><span class="line">    $redata &#x3D; [</span><br><span class="line">        &#39;wfid&#39;&#x3D;&gt;$frame-&gt;fd,</span><br><span class="line">        &#39;conent&#39;&#x3D;&gt;$data[&#39;conent&#39;]</span><br><span class="line">    ];</span><br><span class="line">    &#x2F;&#x2F;发送</span><br><span class="line">    $ws-&gt;push($data[&#39;fid&#39;],json_encode($redata));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;监听WebSocket连接关闭事件</span><br><span class="line">$ws-&gt;on(&#39;close&#39;, function ($ws, $fd) &#123;</span><br><span class="line">    echo &quot;&#123;$fd&#125; 关闭连接&quot;;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">$ws-&gt;start();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>1.在来写个html来测试一下</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang&#x3D;&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;meta charset&#x3D;&quot;UTF-8&quot;&gt;</span><br><span class="line">&lt;title&gt;websoket聊天&lt;&#x2F;title&gt;</span><br><span class="line">&lt;&#x2F;head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;div id&#x3D;&quot;messages&quot;&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">        &lt;div&gt;对方fdid  &lt;input id&#x3D;&quot;fid&quot; name&#x3D;&#39;fid&#39; type&#x3D;&quot;text&quot;&gt;&lt;&#x2F;div&gt;</span><br><span class="line">        &lt;div&gt;发送内容  &lt;input id&#x3D;&quot;conent&quot; name&#x3D;&#39;conent&#39; type&#x3D;&quot;text&quot;&gt;&lt;&#x2F;div&gt;</span><br><span class="line">        &lt;button id&#x3D;&quot;send&quot;&gt;发送&lt;&#x2F;button&gt;</span><br><span class="line">    &lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;body&gt;</span><br><span class="line">　　&lt;script src&#x3D;&quot;https:&#x2F;&#x2F;code.jquery.com&#x2F;jquery-3.1.1.min.js&quot;&gt;&lt;&#x2F;script&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 打开一个 web socket</span><br><span class="line">var ws &#x3D; new WebSocket(&quot;ws:&#x2F;&#x2F;192.168.80.131:9502&quot;);</span><br><span class="line">ws.onopen &#x3D; function()</span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F;刚链接发送</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ws.onmessage &#x3D; function (evt) </span><br><span class="line">&#123; </span><br><span class="line">    var received_msg &#x3D; evt.data;</span><br><span class="line">        console.log(received_msg);</span><br><span class="line">        data &#x3D; JSON.parse(received_msg);</span><br><span class="line">        &#x2F;&#x2F;是否第一次链接</span><br><span class="line">        if(data.fd)&#123;</span><br><span class="line">            conent &#x3D; &quot;你的fdid为：&quot;+data.fd;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            conent &#x3D; &quot;&lt;div&gt;对方fid：&quot; + data.wfid + &quot;说：&quot; + data.conent +&quot;&lt;&#x2F;div&gt;&quot;;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    $(&quot;#messages&quot;).append(conent);</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ws.onclose &#x3D; function()</span><br><span class="line">&#123; </span><br><span class="line">    &#x2F;&#x2F; 关闭 websocket</span><br><span class="line">    alert(&quot;连接已关闭...&quot;); </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">$(&quot;#send&quot;).click(function()&#123;</span><br><span class="line">    &#x2F;&#x2F;获取要发送的fd</span><br><span class="line">    fid &#x3D; $(&quot;#fid&quot;).val();</span><br><span class="line">    &#x2F;&#x2F;获取要发送的值</span><br><span class="line">    conent &#x3D; $(&quot;#conent&quot;).val();</span><br><span class="line">    console.log(conent);</span><br><span class="line">    &#x2F;&#x2F;追加本地页面</span><br><span class="line">    $(&quot;#messages&quot;).append(&quot;&lt;div&gt;我说：&quot; +  conent +&quot;&lt;&#x2F;div&gt;&quot;);</span><br><span class="line">    var json &#x3D;&#123;&quot;fid&quot;:fid, &quot;conent&quot;:conent&#125;;</span><br><span class="line">    &#x2F;&#x2F;json转换字符串发送</span><br><span class="line">    var jsonstr &#x3D;JSON.stringify(json);</span><br><span class="line">    &#x2F;&#x2F;发送</span><br><span class="line">    ws.send(jsonstr);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">&lt;&#x2F;script&gt;</span><br><span class="line">&lt;&#x2F;html&gt;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>3.见证奇迹的时候到了</p>
+</blockquote>
+<ul>
+<li>启动 服务端 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost 02_chagn]# php websoket_server.php </span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li>打开两个页面，当打开过后，出现两个fd</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost 02_chagn]# php websoket_server.php </span><br><span class="line">int(1)</span><br><span class="line">int(2)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>页面1效果</li>
+</ul>
+<p><img src="/2020/11/08/swoole-websocket-server/1111.png" alt="页面1"></p>
+<ul>
+<li>页面2效果</li>
+</ul>
+<p><img src="/2020/11/08/swoole-websocket-server/22222.png" alt="页面2"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -844,86 +1147,11 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.cdhihi.com/2018/11/12/nginx_cross_domain/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="cdhihi">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="技术笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/11/12/nginx_cross_domain/" class="post-title-link" itemprop="url">nginx解决跨域问题</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-11-12 11:23:55" itemprop="dateCreated datePublished" datetime="2018-11-12T11:23:55+08:00">2018-11-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-06 17:10:29" itemprop="dateModified" datetime="2020-07-06T17:10:29+08:00">2020-07-06</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/nginx/" itemprop="url" rel="index"><span itemprop="name">nginx</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>加到nginx.conf配置文件</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if ($request_method &#x3D; OPTIONS ) &#123;</span><br><span class="line">               add_header &#39;Access-Control-Allow-Origin&#39; &#39;*&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Allow-Headers&#39; &#39;Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,X-Requested-With,x-auth-token&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Allow-Methods&#39; &#39;GET,POST,OPTIONS&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Expose-Headers&#39; &#39;x-auth-token&#39;;</span><br><span class="line">               add_header &#39;Access-Control-Max-Age&#39; &quot;86400&quot;;</span><br><span class="line">               return 200;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 
@@ -990,20 +1218,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
